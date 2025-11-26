@@ -2,6 +2,7 @@ import { Get, Post, Delete, Controller, Patch } from '@nestjs/common';
 import { ClienteService } from './cliente.service';
 import { Body, Param } from '@nestjs/common';
 import { Cliente } from './cliente.entity';
+import { CreateClienteDto } from './dto/create-cliente.dto';
 
 @Controller('clientes')
 export class ClienteController {
@@ -18,16 +19,16 @@ export class ClienteController {
   }
 
   @Post()
-  async create(@Body('nome') nome: string): Promise<Cliente> {
-    return this.clienteService.create(nome);
+  async create(@Body() createClienteDto: CreateClienteDto): Promise<Cliente> {
+    return this.clienteService.create(createClienteDto);
   }
 
   @Patch(':id')
   async update(
     @Param('id') id: number,
-    @Body('nome') nome: string, // <-- O novo 'nome' vem do JSON do corpo da requisição
+    @Body() createClienteDto: CreateClienteDto,
   ): Promise<Cliente | null> {
-    return this.clienteService.update(id, nome);
+    return this.clienteService.update(id, createClienteDto.nome);
   }
 
   @Delete(':id')
