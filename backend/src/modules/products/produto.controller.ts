@@ -10,6 +10,8 @@ import {
 
 import { ProdutoService } from './produto.service';
 import { Produto } from './produto.entity';
+import { CreateProdutoDto } from './dto/create-produto.dto';
+import { UpdateProdutoDto } from './dto/update-produto.dto';
 
 @Controller('produtos')
 export class ProdutoController {
@@ -26,20 +28,16 @@ export class ProdutoController {
   }
 
   @Post()
-  async create(
-    @Body('nome') nome: string,
-    @Body('preco') preco: number,
-  ): Promise<Produto> {
-    return this.produtoService.create(nome, preco);
+  async create(@Body() createProdutoDto: CreateProdutoDto): Promise<Produto> {
+    return this.produtoService.create(createProdutoDto);
   }
 
   @Patch(':id')
   async update(
     @Param('id') id: number,
-    @Body('nome') nome: string,
-    @Body('preco') preco: number,
+    @Body() updateProdutoDto: UpdateProdutoDto,
   ): Promise<Produto | null> {
-    return this.produtoService.update(id, nome, preco);
+    return this.produtoService.update(id, updateProdutoDto);
   }
 
   @Delete(':id')
