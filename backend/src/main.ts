@@ -15,4 +15,7 @@ async function bootstrap() {
 
   await app.listen(process.env.PORT ?? 3000);
 }
-bootstrap();
+bootstrap().catch((err) => {
+  console.error('Erro fatal ao iniciar a aplicação:', err);
+  process.exit(1); // Encerra o processo com código de erro
+});

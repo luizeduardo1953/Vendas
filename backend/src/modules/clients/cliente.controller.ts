@@ -3,6 +3,7 @@ import { ClienteService } from './cliente.service';
 import { Body, Param } from '@nestjs/common';
 import { Cliente } from './cliente.entity';
 import { CreateClienteDto } from './dto/create-cliente.dto';
+import { UpdateClienteDto } from './dto/update-cliente.dto';
 
 @Controller('clientes')
 export class ClienteController {
@@ -26,9 +27,9 @@ export class ClienteController {
   @Patch(':id')
   async update(
     @Param('id') id: number,
-    @Body() createClienteDto: CreateClienteDto,
+    @Body() updateClienteDto: UpdateClienteDto,
   ): Promise<Cliente | null> {
-    return this.clienteService.update(id, createClienteDto.nome);
+    return this.clienteService.update(id, updateClienteDto);
   }
 
   @Delete(':id')

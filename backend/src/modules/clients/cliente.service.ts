@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Cliente } from './cliente.entity';
 import { NotFoundException } from '@nestjs/common';
 import { CreateClienteDto } from './dto/create-cliente.dto';
+import { UpdateClienteDto } from './dto/update-cliente.dto';
 
 @Injectable()
 export class ClienteService {
@@ -28,23 +29,16 @@ export class ClienteService {
 
   async create(createClienteDto: CreateClienteDto): Promise<Cliente> {
     const cliente = this.clienteRepository.create(createClienteDto);
-
-    if (cliente) {
-      return this.clienteRepository.save(cliente);
-    } else {
-      throw new NotFoundException(`Não foi possível criar o cliente.`);
-    }
+    return this.clienteRepository.save(cliente);
   }
 
-  async update(id: number, nome: string): Promise<Cliente | null> {
+  async update(
+    id: number,
+    updateClienteDto: UpdateClienteDto,
+  ): Promise<Cliente | null> {
     const cliente = await this.findById(id);
-
-    if (cliente) {
-      cliente.nome = nome;
-      return this.clienteRepository.save(cliente);
-    } else {
-      throw new NotFoundException(`Cliente com ID ${id} não encontrado.`);
-    }
+    this.clienteRepository.merge(cliente, updateClienteDto);
+    return this.clienteRepository.save(cliente);
   }
 
   async delete(id: number): Promise<void> {
