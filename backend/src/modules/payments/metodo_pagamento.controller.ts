@@ -8,6 +8,8 @@ import {
   Param,
 } from '@nestjs/common';
 import { MetodoPagamentoService } from './metodo_pagamento.service';
+import { UpdateMetodoPagamentoDto } from './dto/update-metodo-pagamento.dto';
+import { CreateMetodoPagamentoDto } from './dto/create-metodo-pagamento.dto';
 
 @Controller('metodos_pagamento')
 export class MetodoPagamentoController {
@@ -26,17 +28,16 @@ export class MetodoPagamentoController {
   }
 
   @Post()
-  async create(@Body('nome') nome: string, @Body('taxa') taxa: number) {
-    return this.metodoPagamentoService.create(nome, taxa);
+  async create(@Body() createMetodoPagamentoDto: CreateMetodoPagamentoDto) {
+    return this.metodoPagamentoService.create(createMetodoPagamentoDto);
   }
 
   @Patch(':id')
   async update(
     @Param('id') id: number,
-    @Body('nome') nome: string,
-    @Body('taxa') taxa: number,
+    @Body() updateMetodoPagamentoDto: UpdateMetodoPagamentoDto,
   ) {
-    return this.metodoPagamentoService.update(id, nome, taxa);
+    return this.metodoPagamentoService.update(id, updateMetodoPagamentoDto);
   }
 
   @Delete(':id')

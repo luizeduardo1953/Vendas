@@ -1,7 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { MetodoPagamento } from './metodo_pagamento.entity';
+import { CreateMetodoPagamentoDto } from './dto/create-metodo-pagamento.dto';
+import { UpdateMetodoPagamentoDto } from './dto/update-metodo-pagamento.dto';
 
 @Injectable()
 export class MetodoPagamentoService {
@@ -16,35 +18,46 @@ export class MetodoPagamentoService {
 
   async findById(id: number): Promise<MetodoPagamento | null> {
     const metodo = await this.metodoPagamentoRepository.findOneBy({ id });
-    if (metodo) {
-      return metodo;
+
+    if (!metodo) {
+      throw new NotFoundException(
+        `Método de pagamento com ID ${id} não encontrado.`,
+      );
     }
-    return null;
+
+    return metodo;
   }
 
-  async create(nome: string, taxa: number): Promise<MetodoPagamento> {
-    return this.metodoPagamentoRepository.save({ nome, taxa });
+  async create(
+    createMetodoPagamentoDto: CreateMetodoPagamentoDto,
+  ): Promise<MetodoPagamento> {
+    return this.metodoPagamentoRepository.save(createMetodoPagamentoDto);
   }
 
   async update(
     id: number,
-    nome: string,
-    taxa: number,
+    updateMetodoPagamentoDto: UpdateMetodoPagamentoDto,
   ): Promise<MetodoPagamento | null> {
     const metodo = await this.findById(id);
 
-    if (metodo) {
-      metodo.nome = nome;
-      metodo.taxa = taxa;
-      return this.metodoPagamentoRepository.save(metodo);
+    if (!metodo) {
+      throw new NotFoundException(
+        `Método de pagamento com ID ${id} não encontrado.`,
+      );
     }
-    return null;
+
+    this.metodoPagamentoRepository.merge(metodo, updateMetodoPagamentoDto);
+
+    return this.metodoPagamentoRepository.save(metodo);
   }
 
   async delete(id: number): Promise<void> {
-    const metodo = await this.findById(id);
-    if (metodo) {
-      await this.metodoPagamentoRepository.delete(metodo);
+    const result = await this.metodoPagamentoRepository.delete(id);
+
+    if (result.affected === 0) {
+      throw new NotFoundException(
+        `Método de pagamento com ID ${id} não encontrado.`,
+      );
     }
   }
 }
