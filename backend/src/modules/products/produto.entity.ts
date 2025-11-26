@@ -8,6 +8,6 @@ export class Produto {
   @Column()
   nome: string;
 
-  @Column('decimal')
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
   preco: number;
 }

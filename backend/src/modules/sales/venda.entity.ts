@@ -29,13 +29,13 @@ export class Venda {
   metodoPagamento: MetodoPagamento;
 
   // --- DADOS DE PREÇO E CÁLCULO ---
-  @Column({ type: 'numeric', precision: 10, scale: 2, nullable: false })
+  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: false })
   precoVenda: number;
 
-  @Column({ type: 'numeric', precision: 10, scale: 2, nullable: false })
+  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: false })
   taxaAplicada: number;
 
-  @Column({ type: 'numeric', precision: 10, scale: 2, nullable: false })
+  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: false })
   valorLiquido: number;
 
   // --- METADADOS ---

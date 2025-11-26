@@ -8,6 +8,6 @@ export class MetodoPagamento {
   @Column()
   nome: string;
 
-  @Column()
+  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: false })
   taxa: number;
 }
