@@ -56,29 +56,34 @@ export class VendaService {
       produto,
       metodoPagamento,
 
-      // ADICIONE ESTAS LINHAS:
-      precoVenda: produto.preco, // <--- O ERRO ESTAVA AQUI (Faltava isso)
-      taxaAplicada: taxaAplicada, // Se tiver essa coluna no banco, salve também
+      precoVenda: produto.preco,
+      taxaAplicada: taxaAplicada,
       valorLiquido: valorLiquido,
     });
 
     return this.vendaRepository.save(venda);
   }
+
   async findAll(): Promise<Venda[]> {
-    return this.vendaRepository.find();
+    const vendas = await this.vendaRepository.find({
+      relations: ['produto', 'metodoPagamento', 'cliente'],
+    });
+
+    return vendas;
   }
 
   async findById(id: number): Promise<Venda | null> {
-    const venda = await this.vendaRepository.findOneBy({ id });
+    const venda = await this.vendaRepository.findOne({
+      where: { id },
+      relations: ['produto', 'metodoPagamento', 'cliente'],
+    });
 
-    if (venda) {
-      return venda;
+    if (!venda) {
+      throw new NotFoundException(`Venda não encontrada.`);
     }
 
-    return null;
+    return venda;
   }
-
-  // No VendaService
 
   async update(id: number, updateVendaDto: UpdateVendaDto): Promise<Venda> {
     // 1. Busca a venda
@@ -91,7 +96,6 @@ export class VendaService {
       throw new NotFoundException(`Venda com ID ${id} não encontrada.`);
     }
 
-    // 2. Atualiza o Cliente APENAS se um novo ID for enviado
     if (updateVendaDto.clienteId) {
       const cliente = await this.clienteService.findById(
         updateVendaDto.clienteId,
@@ -102,7 +106,6 @@ export class VendaService {
 
     // 3. Verifica se precisa recalcular valores (Se mudou Produto OU Método)
     if (updateVendaDto.metodoPagamentoId || updateVendaDto.produtoId) {
-      // CORREÇÃO: Usar os campos corretos do DTO, e não "clienteId"
       const idProdutoFinal = updateVendaDto.produtoId ?? venda.produto.id;
       const idMetodoFinal =
         updateVendaDto.metodoPagamentoId ?? venda.metodoPagamento.id;
@@ -117,12 +120,19 @@ export class VendaService {
       }
 
       // Recalcula
-      const taxaAplicada = produto.preco * (metodo.taxa / 100);
-      const valorLiquido = produto.preco - taxaAplicada;
+      const taxaCalculada = produto.preco * (metodo.taxa / 100);
+      const taxaAplicada = Number(taxaCalculada.toFixed(2));
+
+      const valorLiquidoCalculado = produto.preco - taxaAplicada;
+      const valorLiquido = Number(valorLiquidoCalculado.toFixed(2));
 
       // Atualiza a entidade
       venda.produto = produto;
       venda.metodoPagamento = metodo;
+      venda.valorLiquido = valorLiquido;
+
+      venda.precoVenda = produto.preco;
+      venda.taxaAplicada = taxaAplicada;
       venda.valorLiquido = valorLiquido;
     }
 
@@ -136,10 +146,12 @@ export class VendaService {
   }
 
   async delete(id: number): Promise<void> {
-    const venda = await this.findById(id);
+    const venda = await this.vendaRepository.delete(id);
 
-    if (venda) {
-      await this.vendaRepository.delete(venda);
+    if (venda.affected === 0) {
+      throw new NotFoundException(
+        `Venda com ID ${id} não encontrada para exclusão.`,
+      );
     }
   }
 }
