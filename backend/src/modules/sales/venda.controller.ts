@@ -8,6 +8,8 @@ import {
   Param,
 } from '@nestjs/common';
 import { VendaService } from './venda.service';
+import { CreateVendaDto } from './dto/create-venda.dto';
+import { UpdateVendaDto } from './dto/update-venda.dto';
 
 @Controller('vendas')
 export class VendaController {
@@ -24,17 +26,16 @@ export class VendaController {
   }
 
   @Post()
-  async create(
-    @Body('clienteId') clienteId: number,
-    @Body('produtoId') produtoId: number,
-    @Body('metodoPagamentoId') metodoPagamentoId: number,
-  ) {
-    return this.vendaService.create(clienteId, produtoId, metodoPagamentoId);
+  async create(@Body() createVendaDto: CreateVendaDto) {
+    return this.vendaService.create(createVendaDto);
   }
 
   @Patch(':id')
-  async update(@Param('id') id: number, @Body('status') status: string) {
-    return this.vendaService.update(id, status);
+  async update(
+    @Param('id') id: number,
+    @Body() updateVendaDto: UpdateVendaDto,
+  ) {
+    return this.vendaService.update(+id, updateVendaDto);
   }
 
   @Delete(':id')
